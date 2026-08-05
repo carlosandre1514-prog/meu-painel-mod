@@ -10,6 +10,7 @@
         input[type="file"] { margin: 20px 0; }
         button { background: #00ffcc; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         button:hover { background: #00cc99; }
+        #status { margin-top: 15px; font-size: 14px; color: #00ffcc; }
     </style>
 </head>
 <body>
@@ -18,16 +19,42 @@
         <p>Envie seu APK para gerenciar e analisar</p>
         <input type="file" id="apkFile" accept=".apk"><br>
         <button onclick="enviarApk()">Processar APK</button>
+        <div id="status"></div>
     </div>
 
     <script>
-        function enviarApk() {
+        async function enviarApk() {
             const fileInput = document.getElementById('apkFile');
+            const statusDiv = document.getElementById('status');
+
             if (fileInput.files.length === 0) {
                 alert('Por favor, selecione um arquivo APK primeiro!');
                 return;
             }
-            alert('APK selecionado com sucesso! Integrando com o backend...');
+
+            const arquivo = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', arquivo);
+
+            statusDiv.innerText = 'Enviando APK para a nuvem... Aguarde.';
+
+            try {
+                // URL oficial do seu backend no Render
+                const resposta = await fetch('https://meu-painel-mod.onrender.com/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (resposta.ok) {
+                    const resultado = await resposta.json();
+                    statusDiv.innerText = 'Sucesso! APK processado pelo servidor.';
+                } else {
+                    statusDiv.innerText = 'Erro no servidor ao processar o APK.';
+                }
+            } catch (erro) {
+                console.error(erro);
+                statusDiv.innerText = 'Falha na conexão com o backend.';
+            }
         }
     </script>
 </body>

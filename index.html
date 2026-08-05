@@ -1,27 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Engenharia Reversa</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 50px; }
-        .container { background: #1e1e1e; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        input[type="file"] { margin: 20px 0; }
-        button { background: #00ffcc; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #00cc99; }
-        #status { margin-top: 15px; font-size: 14px; color: #00ffcc; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Painel Web All-in-One</h2>
-        <p>Envie seu APK para gerenciar e analisar</p>
-        <input type="file" id="apkFile" accept=".apk"><br>
-        <button onclick="enviarApk()">Processar APK</button>
-        <div id="status"></div>
-    </div>
-
     <script>
         async function enviarApk() {
             const fileInput = document.getElementById('apkFile');
@@ -36,10 +12,9 @@
             const formData = new FormData();
             formData.append('file', arquivo);
 
-            statusDiv.innerText = 'Enviando APK para a nuvem... Aguarde.';
+            statusDiv.innerHTML = 'Enviando e analisando APK na nuvem... Aguarde.';
 
             try {
-                // URL oficial do seu backend no Render
                 const resposta = await fetch('https://meu-painel-mod.onrender.com/upload', {
                     method: 'POST',
                     body: formData
@@ -47,7 +22,13 @@
 
                 if (resposta.ok) {
                     const resultado = await resposta.json();
-                    statusDiv.innerText = 'Sucesso! APK processado pelo servidor.';
+                    statusDiv.innerHTML = `
+                        <b>Sucesso! APK Analisado:</b><br>
+                        📦 App: ${resultado.nome_app}<br>
+                        🎯 Pacote: ${resultado.pacote}<br>
+                        🔢 Versão: ${resultado.versao_nome} (Cód: ${resultado.versao_codigo})<br>
+                        💾 Tamanho: ${resultado.tamanho}
+                    `;
                 } else {
                     statusDiv.innerText = 'Erro no servidor ao processar o APK.';
                 }
@@ -57,5 +38,3 @@
             }
         }
     </script>
-</body>
-</html>

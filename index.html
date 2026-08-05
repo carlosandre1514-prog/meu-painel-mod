@@ -1,3 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Engenharia Reversa</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 50px; }
+        .container { background: #1e1e1e; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 90%; }
+        input[type="file"] { margin: 20px 0; word-break: break-all; }
+        button { background: #00ffcc; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #00cc99; }
+        #status { margin-top: 15px; font-size: 14px; color: #00ffcc; text-align: left; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Painel Web All-in-One</h2>
+        <p>Envie seu APK para gerenciar e analisar</p>
+        <input type="file" id="apkFile" accept=".apk"><br>
+        <button onclick="enviarApk()">Processar APK</button>
+        <div id="status"></div>
+    </div>
+
     <script>
         async function enviarApk() {
             const fileInput = document.getElementById('apkFile');
@@ -38,3 +62,5 @@
             }
         }
     </script>
+</body>
+</html>

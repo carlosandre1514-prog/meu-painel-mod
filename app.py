@@ -14,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     return jsonify({
         "status": "online",
-        "mensagem": "API do Painel Mod com análise de APK rodando!"
+        "mensagem": "API do Painel Mod com análise e permissões rodando!"
     })
 
 @app.route('/upload', methods=['POST'])
@@ -39,20 +39,28 @@ def upload_apk():
             nome_app = a.get_app_name()
             versao_codigo = a.get_androidversion_code()
             versao_nome = a.get_androidversion_name()
+            
+            # Extraindo as permissões solicitadas pelo app
+            permissoes = a.get_permissions()
+            # Limita a lista para exibir as principais de forma limpa no painel (ex: primeiras 10)
+            permissoes_resumo = list(permissoes)[:10] if permissoes else ["Nenhuma permissão especial encontrada"]
+            
         except Exception as e:
             nome_pacote = "Desconhecido"
             nome_app = file.filename
             versao_codigo = "N/A"
             versao_nome = "N/A"
+            permissoes_resumo = [f"Erro ao ler detalhes: {str(e)}"]
         
         return jsonify({
-            "mensagem": "APK processado com sucesso!",
+            "mensagem": "APK analisado com sucesso!",
             "nome_arquivo": file.filename,
             "tamanho": f"{tamanho_mb} MB",
             "pacote": nome_pacote,
             "nome_app": nome_app,
             "versao_codigo": versao_codigo,
-            "versao_nome": versao_nome
+            "versao_nome": versao_nome,
+            "permissoes": permissoes_resumo
         }), 200
     else:
         return jsonify({"erro": "Apenas arquivos .apk são permitidos"}), 400

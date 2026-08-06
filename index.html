@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Engenharia Reversa</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 50px; }
-        .container { background: #1e1e1e; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 90%; }
-        input[type="file"] { margin: 20px 0; word-break: break-all; }
-        button { background: #00ffcc; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
+        .container { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 95%; width: 400px; text-align: left; }
+        h2 { text-align: center; color: #00ffcc; }
+        input[type="file"] { margin: 15px 0; width: 100%; box-sizing: border-box; }
+        button { background: #00ffcc; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; }
         button:hover { background: #00cc99; }
-        #status { margin-top: 15px; font-size: 14px; color: #00ffcc; text-align: left; line-height: 1.5; }
+        #status { margin-top: 15px; font-size: 13px; color: #00ffcc; line-height: 1.4; word-break: break-all; }
+        ul { padding-left: 20px; margin: 5px 0; color: #ffcc00; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Painel Web All-in-One</h2>
-        <p>Envie seu APK para gerenciar e analisar</p>
+        <h2>Painel Mod APK</h2>
+        <p style="text-align: center;">Envie seu APK para análise profunda</p>
         <input type="file" id="apkFile" accept=".apk"><br>
-        <button onclick="enviarApk()">Processar APK</button>
+        <button onclick="enviarApk()">Analisar APK</button>
         <div id="status"></div>
     </div>
 
@@ -36,7 +38,7 @@
             const formData = new FormData();
             formData.append('file', arquivo);
 
-            statusDiv.innerHTML = 'Enviando e analisando APK na nuvem... Aguarde.';
+            statusDiv.innerHTML = 'Enviando e extraindo permissões na nuvem... Aguarde.';
 
             try {
                 const resposta = await fetch('https://meu-painel-mod.onrender.com/upload', {
@@ -46,12 +48,23 @@
 
                 if (resposta.ok) {
                     const resultado = await resposta.json();
+                    
+                    let permissoesHtml = '<ul>';
+                    resultado.permissoes.forEach(p => {
+                        // Exibe apenas a parte final da permissão para ficar limpo (ex: INTERNET, READ_EXTERNAL_STORAGE)
+                        let nomePermissao = p.split('.').pop();
+                        permissoesHtml += `<li>${nomePermissao}</li>`;
+                    });
+                    permissoesHtml += '</ul>';
+
                     statusDiv.innerHTML = `
-                        <b>Sucesso! APK Analisado:</b><br>
-                        📦 App: ${resultado.nome_app}<br>
-                        🎯 Pacote: ${resultado.pacote}<br>
-                        🔢 Versão: ${resultado.versao_nome} (Cód: ${resultado.versao_codigo})<br>
-                        💾 Tamanho: ${resultado.tamanho}
+                        <b>✅ APK Analisado com Sucesso!</b><br><br>
+                        📦 <b>App:</b> ${resultado.nome_app}<br>
+                        🎯 <b>Pacote:</b> ${resultado.pacote}<br>
+                        🔢 <b>Versão:</b> ${resultado.versao_nome} (${resultado.versao_codigo})<br>
+                        💾 <b>Tamanho:</b> ${resultado.tamanho}<br><br>
+                        🔒 <b>Principais Permissões:</b>
+                        ${permissoesHtml}
                     `;
                 } else {
                     statusDiv.innerText = 'Erro no servidor ao processar o APK.';

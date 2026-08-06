@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from androguard.core.apk import APK
-from androguard.core.axml import AXMLPrinter
 
 app = Flask(__name__)
 CORS(app)
@@ -15,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     return jsonify({
         "status": "online",
-        "mensagem": "API do Painel Mod com manifesto corrigido rodando!"
+        "mensagem": "API do Painel Mod com manifesto direto rodando!"
     })
 
 @app.route('/upload', methods=['POST'])
@@ -45,11 +44,10 @@ def upload_apk():
             permissoes = a.get_permissions()
             permissoes_resumo = list(permissoes)[:10] if permissoes else ["Nenhuma permissão especial encontrada"]
             
-            # Extraindo e convertendo o AndroidManifest.xml de forma segura
-            manifest_bytes = a.get_android_manifest_axml()
-            if manifest_bytes:
-                axml = AXMLPrinter(manifest_bytes.get_buff())
-                manifesto_texto = axml.get_buff_xml().decode('utf-8', errors='ignore')
+            # Extraindo o manifesto diretamente usando o método seguro do Androguard
+            xml_bytes = a.get_android_manifest_xml()
+            if xml_bytes:
+                manifesto_texto = xml_bytes.decode('utf-8', errors='ignore')
             else:
                 manifesto_texto = "AndroidManifest.xml não encontrado ou ilegível."
                 
@@ -73,7 +71,7 @@ def upload_apk():
             "manifesto": manifesto_texto
         }), 200
     else:
-        return jsonify({"erro": "Apenas arquivos .apk são permitidos"}), 400
+        return jsonify({"erro": "Apenas arquivos .apk sindo permitidos"}), 400
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

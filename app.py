@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from androguard.core.apk import APK
+from androguard.core.axml import AXMLPrinter
 
 app = Flask(__name__)
 CORS(app)
@@ -14,7 +15,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     return jsonify({
         "status": "online",
-        "mensagem": "API do Painel Mod com análise e permissões rodando!"
+        "mensagem": "API do Painel Mod com análise de manifesto rodando!"
     })
 
 @app.route('/upload', methods=['POST'])
@@ -40,17 +41,25 @@ def upload_apk():
             versao_codigo = a.get_androidversion_code()
             versao_nome = a.get_androidversion_name()
             
-            # Extraindo as permissões solicitadas pelo app
+            # Extraindo as permissões
             permissoes = a.get_permissions()
-            # Limita a lista para exibir as principais de forma limpa no painel (ex: primeiras 10)
             permissoes_resumo = list(permissoes)[:10] if permissoes else ["Nenhuma permissão especial encontrada"]
             
+            # Extraindo e convertendo o AndroidManifest.xml para texto legível
+            manifest_bytes = a.get_android_manifest_axml()
+            if manifest_bytes:
+                axml = AXMLPrinter(manifest_bytes.get_buffer())
+                manifesto_texto = axml.get_buff_xml().decode('utf-8', errors='ignore')
+            else:
+                manifesto_texto = "AndroidManifest.xml não encontrado ou ilegível."
+                
         except Exception as e:
             nome_pacote = "Desconhecido"
             nome_app = file.filename
             versao_codigo = "N/A"
             versao_nome = "N/A"
-            permissoes_resumo = [f"Erro ao ler detalhes: {str(e)}"]
+            permissoes_resumo = [f"Erro: {str(e)}"]
+            manifesto_texto = f"Erro ao extrair o manifesto: {str(e)}"
         
         return jsonify({
             "mensagem": "APK analisado com sucesso!",
@@ -60,7 +69,8 @@ def upload_apk():
             "nome_app": nome_app,
             "versao_codigo": versao_codigo,
             "versao_nome": versao_nome,
-            "permissoes": permissoes_resumo
+            "permissoes": permissoes_resumo,
+            "manifesto": manifesto_texto
         }), 200
     else:
         return jsonify({"erro": "Apenas arquivos .apk são permitidos"}), 400

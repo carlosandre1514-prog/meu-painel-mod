@@ -6,19 +6,20 @@
     <title>Painel de Engenharia Reversa</title>
     <style>
         body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
-        .container { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 95%; width: 400px; text-align: left; }
+        .container { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 95%; width: 450px; text-align: left; }
         h2 { text-align: center; color: #00ffcc; }
         input[type="file"] { margin: 15px 0; width: 100%; box-sizing: border-box; }
         button { background: #00ffcc; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; }
         button:hover { background: #00cc99; }
         #status { margin-top: 15px; font-size: 13px; color: #00ffcc; line-height: 1.4; word-break: break-all; }
         ul { padding-left: 20px; margin: 5px 0; color: #ffcc00; }
+        pre { background: #111; color: #00ffcc; padding: 10px; border-radius: 5px; max-height: 200px; overflow-y: auto; font-size: 11px; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Painel Mod APK</h2>
-        <p style="text-align: center;">Envie seu APK para análise profunda</p>
+        <p style="text-align: center;">Análise de Manifesto e Permissões</p>
         <input type="file" id="apkFile" accept=".apk"><br>
         <button onclick="enviarApk()">Analisar APK</button>
         <div id="status"></div>
@@ -38,7 +39,7 @@
             const formData = new FormData();
             formData.append('file', arquivo);
 
-            statusDiv.innerHTML = 'Enviando e extraindo permissões na nuvem... Aguarde.';
+            statusDiv.innerHTML = 'Enviando e extraindo manifesto na nuvem... Aguarde.';
 
             try {
                 const resposta = await fetch('https://meu-painel-mod.onrender.com/upload', {
@@ -51,7 +52,6 @@
                     
                     let permissoesHtml = '<ul>';
                     resultado.permissoes.forEach(p => {
-                        // Exibe apenas a parte final da permissão para ficar limpo (ex: INTERNET, READ_EXTERNAL_STORAGE)
                         let nomePermissao = p.split('.').pop();
                         permissoesHtml += `<li>${nomePermissao}</li>`;
                     });
@@ -64,7 +64,9 @@
                         🔢 <b>Versão:</b> ${resultado.versao_nome} (${resultado.versao_codigo})<br>
                         💾 <b>Tamanho:</b> ${resultado.tamanho}<br><br>
                         🔒 <b>Principais Permissões:</b>
-                        ${permissoesHtml}
+                        ${permissoesHtml}<br>
+                        📄 <b>AndroidManifest.xml:</b><br>
+                        <pre>${escapeHtml(resultado.manifesto)}</pre>
                     `;
                 } else {
                     statusDiv.innerText = 'Erro no servidor ao processar o APK.';
@@ -73,6 +75,10 @@
                 console.error(erro);
                 statusDiv.innerText = 'Falha na conexão com o backend.';
             }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
     </script>
 </body>

@@ -15,7 +15,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     return jsonify({
         "status": "online",
-        "mensagem": "API do Painel Mod com análise de manifesto rodando!"
+        "mensagem": "API do Painel Mod com manifesto corrigido rodando!"
     })
 
 @app.route('/upload', methods=['POST'])
@@ -45,10 +45,10 @@ def upload_apk():
             permissoes = a.get_permissions()
             permissoes_resumo = list(permissoes)[:10] if permissoes else ["Nenhuma permissão especial encontrada"]
             
-            # Extraindo e convertendo o AndroidManifest.xml para texto legível
+            # Extraindo e convertendo o AndroidManifest.xml de forma segura
             manifest_bytes = a.get_android_manifest_axml()
             if manifest_bytes:
-                axml = AXMLPrinter(manifest_bytes.get_buffer())
+                axml = AXMLPrinter(manifest_bytes.get_buff())
                 manifesto_texto = axml.get_buff_xml().decode('utf-8', errors='ignore')
             else:
                 manifesto_texto = "AndroidManifest.xml não encontrado ou ilegível."
